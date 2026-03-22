@@ -1,0 +1,1370 @@
+<!DOCTYPE html>
+<!-- MF Search v4.9 -->
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0">
+<meta name="theme-color" content="#111318">
+<title>MF Search v4.9</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+body{background:#111318;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;color:#e2e4ea;min-height:100vh;padding-bottom:80px}
+
+/* HEADER */
+#hdr{background:#1a1d26;border-bottom:2px solid #2e3347;padding:14px 16px 10px;position:sticky;top:0;z-index:200}
+.hdr-title{font-size:20px;font-weight:700;color:#c4b5fd;letter-spacing:1px}
+.hdr-sub{font-size:12px;color:#6b7280;margin-top:2px}
+
+/* CONFIG PANEL */
+#cfg{background:#1a1d26;border-bottom:2px solid #2e3347;padding:12px 16px}
+.cfg-label{font-size:11px;font-weight:700;color:#9ca3af;letter-spacing:1px;text-transform:uppercase;margin-bottom:6px}
+
+/* PRESETS */
+#presets-bar{display:flex;gap:8px;overflow-x:auto;padding-bottom:4px;scrollbar-width:none;margin-bottom:12px}
+#presets-bar::-webkit-scrollbar{display:none}
+.preset-btn{padding:7px 14px;border-radius:20px;border:1px solid #2e3347;background:transparent;color:#9ca3af;font-size:13px;white-space:nowrap;cursor:pointer;flex-shrink:0}
+.preset-btn.active{background:rgba(124,58,237,0.2);border-color:#7c3aed;color:#c4b5fd;font-weight:700}
+.preset-btn.new-btn{border-color:#374151;color:#6b7280}
+.preset-btn.del-btn{border-color:#7f1d1d;color:#f87171}
+
+/* SEARCH TERMS */
+#terms-wrap{margin-bottom:12px}
+#terms-input{width:100%;padding:10px 12px;background:#111318;border:1px solid #2e3347;border-radius:8px;color:#e2e4ea;font-size:14px;min-height:60px;resize:vertical;font-family:inherit}
+#terms-input:focus{outline:none;border-color:#7c3aed}
+.terms-hint{font-size:11px;color:#4b5563;margin-top:4px}
+
+/* MODE TOGGLE */
+#mode-wrap{display:flex;gap:10px;margin-bottom:12px;align-items:center}
+.mode-label{font-size:13px;color:#9ca3af;margin-right:4px}
+.mode-btn{padding:8px 16px;border-radius:8px;border:1px solid #2e3347;background:#111318;color:#9ca3af;font-size:13px;cursor:pointer;font-weight:500}
+.mode-btn.active{background:rgba(124,58,237,0.2);border-color:#7c3aed;color:#c4b5fd;font-weight:700}
+
+/* SITE SELECTOR */
+#sites-wrap{margin-bottom:4px}
+.sites-toggle{display:flex;justify-content:space-between;align-items:center;cursor:pointer;padding:4px 0;margin-bottom:6px}
+.sites-toggle-label{font-size:13px;font-weight:600;color:#c4b5fd}
+.sites-toggle-icon{font-size:12px;color:#6b7280;transition:transform 0.2s}
+.sites-toggle-icon.open{transform:rotate(180deg)}
+#sites-body{display:none}
+.site-group{margin-bottom:10px}
+.site-group-hdr{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
+.site-group-name{font-size:11px;font-weight:700;color:#6b7280;letter-spacing:1px;text-transform:uppercase}
+.sel-all-btn{font-size:11px;color:#818cf8;background:none;border:none;cursor:pointer;padding:2px 6px}
+.site-chips{display:flex;flex-wrap:wrap;gap:6px}
+.site-chip{display:flex;align-items:center;gap:5px;padding:5px 10px;border-radius:16px;border:1px solid #2e3347;background:#111318;cursor:pointer;font-size:12px;color:#9ca3af;user-select:none}
+.site-chip.on{background:rgba(99,102,241,0.15);border-color:#6366f1;color:#e0e7ff}
+.site-chip input{display:none}
+.master-sel{width:100%;padding:8px;background:#1e2130;border:1px solid #2e3347;border-radius:8px;color:#818cf8;font-size:13px;font-weight:600;cursor:pointer;margin-bottom:10px}
+
+/* SCAN CONTROLS */
+#ctrl{padding:12px 16px;background:#1a1d26;border-bottom:2px solid #2e3347}
+#scan-btn{width:100%;padding:14px;background:linear-gradient(135deg,#7c3aed,#5b21b6);border:none;border-radius:8px;color:#fff;font-weight:700;font-size:15px;cursor:pointer;margin-bottom:6px}
+#scan-btn:disabled{background:#2e3347;color:#6b7280;cursor:not-allowed}
+#stop-btn{display:none;width:100%;padding:11px;background:#3b1515;border:1px solid #7f1d1d;border-radius:8px;color:#fca5a5;font-weight:700;font-size:14px;cursor:pointer;margin-bottom:6px}
+.ptrack{height:5px;background:#2e3347;border-radius:3px;overflow:hidden;margin-bottom:5px}
+.pfill{height:100%;width:0;background:linear-gradient(90deg,#7c3aed,#34d399);border-radius:3px;transition:width 0.3s}
+#sline{font-size:13px;color:#c4c9d8;min-height:18px}
+#cline{font-size:12px;color:#6b7280;margin-top:2px;min-height:16px}
+
+/* SUMMARY CARDS */
+#sumwrap{display:none;padding:12px 16px 0;flex-direction:column;gap:8px}
+.scard{border-radius:10px;padding:12px 16px;border:1px solid;display:flex;align-items:center;gap:14px;cursor:pointer}
+.s125{background:#0d1f0d;border-color:#166534}.s100{background:#1f1500;border-color:#854d0e}
+.s200{background:#1f0a0a;border-color:#991b1b}.soth{background:#0d1020;border-color:#1e3a8a}
+.sall{background:#160d20;border-color:#4c1d95}.sfre{background:#0d1818;border-color:#0e7490}
+.sicon{font-size:24px;min-width:28px}.stxt{flex:1}
+.scnt{font-size:26px;font-weight:800;line-height:1}
+.s125 .scnt{color:#4ade80}.s100 .scnt{color:#fbbf24}.s200 .scnt{color:#f87171}
+.soth .scnt{color:#60a5fa}.sall .scnt{color:#c084fc}.sfre .scnt{color:#22d3ee}
+.slbl{font-size:12px;letter-spacing:1px;margin-top:3px;color:#9ca3af;font-weight:600}
+.ssite{font-size:11px;color:#6b7280;margin-top:2px}
+
+/* FILTER BAR */
+#fbar{display:none;padding:10px 16px;gap:8px;overflow-x:auto;border-bottom:1px solid #2e3347;scrollbar-width:none}
+#fbar::-webkit-scrollbar{display:none}
+.fb{padding:7px 14px;border-radius:20px;border:1px solid #2e3347;background:transparent;color:#9ca3af;font-size:12px;white-space:nowrap;cursor:pointer;flex-shrink:0;font-weight:500}
+.fb.on{border-color:#7c3aed;background:rgba(124,58,237,0.2);color:#c4b5fd;font-weight:700}
+
+/* RESULTS */
+#results{padding:12px 16px 0}
+.site-section{margin-bottom:16px}
+.site-hdr{display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid #2e3347;margin-bottom:8px}
+.site-flag{font-size:18px}
+.site-name{font-size:14px;font-weight:600;color:#e2e4ea;flex:1}
+.site-badge{font-size:10px;padding:2px 8px;border-radius:10px;font-weight:700;letter-spacing:0.5px}
+.sb-wait{background:#1e2130;color:#4b5563}
+.sb-scan{background:#1e1e3a;color:#818cf8}
+.sb-none{background:#1a1a1a;color:#374151}
+.sb-err{background:#1a1a1a;color:#374151}
+.sb-125{background:#052e16;color:#4ade80;border:1px solid #166534}
+.sb-100{background:#1c1400;color:#fbbf24;border:1px solid #854d0e}
+.sb-200{background:#1c0505;color:#f87171;border:1px solid #991b1b}
+.sb-oth{background:#0c1228;color:#60a5fa;border:1px solid #1e3a8a}
+.sb-fre{background:#061818;color:#22d3ee;border:1px solid #0e7490}
+
+/* RESULT CARDS */
+.rcard{background:#161922;border:1px solid #2e3347;border-radius:10px;margin-bottom:10px;overflow:hidden;cursor:pointer;transition:border-color 0.15s}
+.rcard:active{border-color:#7c3aed}
+.rcard.c125{border-left:4px solid #4ade80}
+.rcard.c100{border-left:4px solid #fbbf24}
+.rcard.c200{border-left:4px solid #f87171}
+.rcard.coth{border-left:4px solid #60a5fa}
+.rcard.cfre{border-left:4px solid #22d3ee}
+.rcard-body{padding:12px 14px}
+.rcard-title{font-size:14px;color:#e2e4ea;line-height:1.5;font-weight:500;margin-bottom:8px}
+.rcard-meta{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-bottom:10px}
+.rcard-price{font-size:16px;font-weight:700;color:#c4b5fd}
+.rcard-site{font-size:11px;color:#9ca3af;background:#1e2130;padding:2px 8px;border-radius:10px}
+.rcard-cls{font-size:10px;font-weight:700;padding:2px 7px;border-radius:6px;letter-spacing:0.5px}
+.cls-125{background:#052e16;color:#4ade80}
+.cls-100{background:#1c1400;color:#fbbf24}
+.cls-200{background:#1c0505;color:#f87171}
+.cls-oth{background:#0c1228;color:#60a5fa}
+.cls-fre{background:#061818;color:#22d3ee}
+.rcard-time{font-size:10px;color:#4b5563}
+.rcard-btns{display:flex;gap:8px;padding:0 14px 12px}
+.rcard-view{flex:1;padding:10px;background:#7c3aed;border:none;border-radius:8px;color:#fff;font-size:13px;font-weight:700;cursor:pointer;text-align:center}
+.rcard-trans{padding:10px 14px;background:#1e2130;border:1px solid #374151;border-radius:8px;color:#9ca3af;font-size:13px;font-weight:600;cursor:pointer}
+.no-results{padding:12px;font-size:13px;color:#4b5563;text-align:center}
+
+/* SPIN */
+.spin{display:inline-block;width:10px;height:10px;border:2px solid #2e3347;border-top-color:#7c3aed;border-radius:50%;animation:sp 0.8s linear infinite;margin-right:5px;vertical-align:middle}
+@keyframes sp{to{transform:rotate(360deg)}}
+
+/* DEBUG */
+#dbg{margin:16px 16px 0;background:#1c1a12;border:1px solid #44380a;border-radius:10px;overflow:hidden}
+.dbg-hdr{display:flex;align-items:center;gap:10px;padding:12px 14px;cursor:pointer}
+.dbg-title{flex:1;font-size:14px;font-weight:700;color:#fbbf24}
+#dbg-body{display:none;padding:12px 14px;border-top:1px solid #44380a}
+#dbg-run{width:100%;padding:11px;background:#2c2000;border:1px solid #78620a;border-radius:6px;color:#fbbf24;font-size:13px;font-weight:700;cursor:pointer;margin-bottom:10px}
+#dbg-out{background:#0e0d08;border:1px solid #3a3000;border-radius:6px;padding:10px;font-size:12px;line-height:1.8;white-space:pre-wrap;word-break:break-all;max-height:400px;overflow-y:auto;color:#fbbf24;font-family:'Courier New',monospace}
+#dbg-out .ok{color:#4ade80}
+#dbg-out .er{color:#f87171}
+#dbg-out .in{color:#60a5fa}
+#dbg-out .di{color:#6b5a20}
+
+footer{padding:16px;text-align:center;font-size:11px;color:#374151;letter-spacing:1px;border-top:1px solid #2e3347;margin-top:20px}
+
+/* MODAL */
+#modal-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:500;align-items:center;justify-content:center;padding:20px}
+#modal-bg.open{display:flex}
+#modal{background:#1a1d26;border:1px solid #2e3347;border-radius:12px;width:100%;max-width:400px;padding:20px}
+.modal-title{font-size:16px;font-weight:700;color:#c4b5fd;margin-bottom:14px}
+.modal-input{width:100%;padding:10px 12px;background:#111318;border:1px solid #2e3347;border-radius:8px;color:#e2e4ea;font-size:14px;margin-bottom:10px;font-family:inherit}
+.modal-input:focus{outline:none;border-color:#7c3aed}
+.modal-btns{display:flex;gap:8px}
+.modal-ok{flex:1;padding:11px;background:#7c3aed;border:none;border-radius:8px;color:#fff;font-weight:700;font-size:14px;cursor:pointer}
+.modal-cancel{padding:11px 18px;background:#1e2130;border:1px solid #374151;border-radius:8px;color:#9ca3af;font-size:14px;cursor:pointer}
+</style>
+</head>
+<body>
+
+<div id="hdr">
+  <div class="hdr-title">MF Search</div>
+  <div class="hdr-sub" id="hdr-sub">Multi-site marketplace scanner v4.9</div>
+</div>
+
+<div id="cfg">
+  <!-- PRESETS -->
+  <div class="cfg-label">Presets</div>
+  <div id="presets-bar"></div>
+
+  <!-- SEARCH TERMS -->
+  <div id="terms-wrap">
+    <div class="cfg-label">Search Terms</div>
+    <textarea id="terms-input" placeholder="Enter search terms, one per line or comma separated&#10;e.g. TAL 125R, TAL-125R, TAL Apolar"></textarea>
+    <div class="terms-hint">Each term fires as one query per enabled site</div>
+  </div>
+
+  <!-- MODE -->
+  <div id="mode-wrap">
+    <span class="mode-label">Mode:</span>
+    <button class="mode-btn active" id="btn-tal" onclick="setMode('tal')">TAL Telescopes</button>
+    <button class="mode-btn" id="btn-free" onclick="setMode('free')">Free Search</button>
+  </div>
+
+  <!-- SITES -->
+  <div id="sites-wrap">
+    <div class="sites-toggle" onclick="toggleSites()">
+      <span class="sites-toggle-label">Sites to Search</span>
+      <span class="sites-toggle-icon" id="sites-icon">▼</span>
+    </div>
+    <div id="sites-body">
+      <button class="master-sel" onclick="selectAllSites(true)">Select All Sites</button>
+      <div id="site-groups"></div>
+    </div>
+  </div>
+</div>
+
+<div id="ctrl">
+  <button id="scan-btn" onclick="startScan()">SCAN NOW</button>
+  <button id="stop-btn" onclick="stopScan()">STOP SCAN</button>
+  <div class="ptrack"><div class="pfill" id="prog"></div></div>
+  <div id="sline">Configure search terms above then tap Scan</div>
+  <div id="cline"></div>
+</div>
+
+<div id="sumwrap"></div>
+<div id="fbar"></div>
+<div id="results"></div>
+
+<div id="dbg">
+  <div class="dbg-hdr" onclick="toggleDbg()">
+    <span style="font-size:16px">🔍</span>
+    <div class="dbg-title">Debug — Proxy Tester</div>
+    <span id="dbg-icon" style="font-size:12px;color:#6b5a20">▼</span>
+  </div>
+  <div id="dbg-body">
+    <button id="dbg-run" onclick="runDebug()">Test All Proxies Now</button>
+    <div id="dbg-out">Tap the button above to test proxies...</div>
+  </div>
+</div>
+
+<footer id="ftxt">MF SEARCH v4.9</footer>
+
+<div id="modal-bg">
+  <div id="modal">
+    <div class="modal-title" id="modal-title">Save Preset</div>
+    <input class="modal-input" id="modal-name" placeholder="Preset name" />
+    <div class="modal-btns">
+      <button class="modal-ok" onclick="modalOk()">Save</button>
+      <button class="modal-cancel" onclick="modalClose()">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ===================================================
+   SITES
+=================================================== */
+var EBAY = [
+  {id:'ebay-uk',  name:'eBay UK',         flag:'GB',cat:'eBay',lang:'en',tpl:'https://www.ebay.co.uk/sch/i.html?_nkw=%%Q%%&_sop=10&_ipg=3',p:'ebay'},
+  {id:'ebay-de',  name:'eBay Germany',    flag:'DE',cat:'eBay',lang:'de',tpl:'https://www.ebay.de/sch/i.html?_nkw=%%Q%%&_sop=10&_ipg=1',p:'ebay'},
+  {id:'ebay-fr',  name:'eBay France',     flag:'FR',cat:'eBay',lang:'fr',tpl:'https://www.ebay.fr/sch/i.html?_nkw=%%Q%%&_sop=10&_ipg=1',p:'ebay'},
+  {id:'ebay-nl',  name:'eBay Netherlands',flag:'NL',cat:'eBay',lang:'nl',tpl:'https://www.ebay.nl/sch/i.html?_nkw=%%Q%%&_sop=10&_ipg=1',p:'ebay'},
+  {id:'ebay-it',  name:'eBay Italy',      flag:'IT',cat:'eBay',lang:'it',tpl:'https://www.ebay.it/sch/i.html?_nkw=%%Q%%&_sop=10&_ipg=1',p:'ebay'},
+  {id:'ebay-es',  name:'eBay Spain',      flag:'ES',cat:'eBay',lang:'es',tpl:'https://www.ebay.es/sch/i.html?_nkw=%%Q%%&_sop=10&_ipg=1',p:'ebay'},
+  {id:'ebay-pl',  name:'eBay Poland',     flag:'PL',cat:'eBay',lang:'pl',tpl:'https://www.ebay.pl/sch/i.html?_nkw=%%Q%%&_sop=10&_ipg=1',p:'ebay'}
+];
+var OTHER = [
+  {id:'mktp',     name:'Marktplaats',      flag:'NL',cat:'EU',  lang:'nl',tpl:'https://www.marktplaats.nl/q/%%Q%%/',p:'mktp'},
+  {id:'kleinanz', name:'Kleinanzeigen',    flag:'DE',cat:'EU',  lang:'de',tpl:'https://www.kleinanzeigen.de/s-%%Q%%/k0',p:'kleinanz'},
+  {id:'atreff',   name:'Astrotreff',       flag:'DE',cat:'EU',  lang:'de',tpl:'https://www.astrotreff.de/marketplace/?search=%%Q%%',p:'gen'},
+  {id:'willhaben',name:'Willhaben',        flag:'AT',cat:'EU',  lang:'de',tpl:'https://www.willhaben.at/iad/kaufen-und-verkaufen/marktplatz?keyword=%%Q%%',p:'gen'},
+  {id:'2dehands', name:'2dehands.be',      flag:'BE',cat:'EU',  lang:'nl',tpl:'https://www.2dehands.be/q/%%Q%%/',p:'gen'},
+  {id:'2ememain', name:'2ememain.be',      flag:'BE',cat:'EU',  lang:'fr',tpl:'https://www.2ememain.be/q/%%Q%%/',p:'gen'},
+  {id:'ricardo',  name:'Ricardo.ch',       flag:'CH',cat:'EU',  lang:'de',tpl:'https://www.ricardo.ch/de/search?q=%%Q%%',p:'ricardo',skipCorsproxy:true},
+  {id:'subito',   name:'Subito.it',        flag:'IT',cat:'EU',  lang:'it',tpl:'https://www.subito.it/annunci-italia/vendita/usato/?q=%%Q%%',p:'subito'},
+  {id:'speurders',name:'Speurders.nl',     flag:'NL',cat:'EU',  lang:'nl',tpl:'https://www.speurders.nl/zoeken/?q=%%Q%%',p:'gen'},
+  {id:'quoka',    name:'Quoka.de',         flag:'DE',cat:'EU',  lang:'de',tpl:'https://www.quoka.de/suche/?q=%%Q%%',p:'gen'},
+  {id:'bear',     name:'BearOptics',       flag:'EU',cat:'EU',  lang:'en',tpl:'https://bearoptics.com/telescopes-tal/',p:'bear',fixed:true},
+  {id:'gumtree',  name:'Gumtree',          flag:'GB',cat:'UK',  lang:'en',tpl:'https://www.gumtree.com/search?search_category=all&q=%%Q%%',p:'gen'},
+  // absuk (AstroBuySell) removed — Cloudflare-blocked
+  // sgl (Stargazers Lounge) removed — bot-blocked
+  // freeads removed — 403 Forbidden on all requests
+  // ebid removed — 404 on all requests (URL pattern dead)
+  {id:'preloved', name:'Preloved',         flag:'GB',cat:'UK',  lang:'en',tpl:'https://www.preloved.co.uk/search?keywords=%%Q%%&categoryid=0',p:'gen'},
+  {id:'blocket',  name:'Blocket.se',       flag:'SE',cat:'Scan',lang:'sv',tpl:'https://www.blocket.se/annonser/hela_sverige?q=%%Q%%&cg=0',p:'gen'},
+  {id:'tradera',  name:'Tradera.se',       flag:'SE',cat:'Scan',lang:'sv',tpl:'https://www.tradera.com/search?q=%%Q%%',p:'gen'},
+  {id:'finn',     name:'FINN.no',          flag:'NO',cat:'Scan',lang:'no',tpl:'https://www.finn.no/bap/forsale/search?q=%%Q%%',p:'gen'},
+  {id:'tori',     name:'Tori.fi',          flag:'FI',cat:'Scan',lang:'fi',tpl:'https://www.tori.fi/koko_suomi?q=%%Q%%',p:'gen'},
+  {id:'dba',      name:'DBA.dk',           flag:'DK',cat:'Scan',lang:'da',tpl:'https://www.dba.dk/soeg/?soeg=%%Q%%',p:'gen'},
+  {id:'avito',    name:'Avito.ru',         flag:'RU',cat:'RU',  lang:'ru',tpl:'https://www.avito.ru/rossiya?q=%%Q%%',p:'gen'},
+  // Astronomy Specialists
+  {id:'cnights',  name:'Cloudy Nights',    flag:'US',cat:'Astro',lang:'en',tpl:'https://www.cloudynights.com/classifieds/category/1-root/',p:'gen',fixed:true},
+  {id:'tsexpress',name:'Teleskop-Express', flag:'DE',cat:'Astro',lang:'de',tpl:'https://www.teleskop-express.de/en/second-hand-special-offers-211',p:'gen',fixed:true},
+  {id:'apmused',  name:'APM Telescopes',   flag:'DE',cat:'Astro',lang:'de',tpl:'https://www.apm-telescopes.net/de/secondhand',p:'gen',fixed:true},
+  {id:'rvo',      name:'Rother Valley',    flag:'GB',cat:'Astro',lang:'en',tpl:'https://www.rothervalleyoptics.co.uk/rvo-second-hand-items.html',p:'gen',fixed:true},
+  {id:'scopetr',  name:'ScopeTrader',      flag:'US',cat:'Astro',lang:'en',tpl:'https://scopetrader.com/?s=%%Q%%',p:'gen'},
+  {id:'astronde', name:'Astronomie.de',    flag:'DE',cat:'Astro',lang:'de',tpl:'https://forum.astronomie.de/search/?q=%%Q%%&o=relevance&c[node][0]=29',p:'gen'},
+  {id:'wexphoto', name:'Wex Photo Video',  flag:'GB',cat:'Astro',lang:'en',tpl:'https://www.wexphotovideo.com/search?query=%%Q%%',p:'gen'}
+];
+var ALL_SITES = EBAY.concat(OTHER);
+var SITE_MAP = {};
+for (var _i=0; _i<ALL_SITES.length; _i++) SITE_MAP[ALL_SITES[_i].id] = ALL_SITES[_i];
+
+var CAT_META = {
+  Astro:{label:'Astronomy Specialists', color:'#a78bfa'},
+  eBay: {label:'eBay Europe', color:'#e6a817'},
+  EU:   {label:'EU Classifieds', color:'#c2255c'},
+  UK:   {label:'UK Sites', color:'#3b5bdb'},
+  Scan: {label:'Scandinavia', color:'#06b6d4'},
+  RU:   {label:'Russia', color:'#f43f5e'}
+};
+
+/* ===================================================
+   PROXIES
+=================================================== */
+var PROXIES = [
+  'https://corsproxy.io/?',
+  'https://api.codetabs.com/v1/proxy?quest=',
+  'https://thingproxy.freeboard.io/fetch/'
+];
+// corsproxy hard-rejects large eBay pages (413) — non-UK eBay skips it entirely
+var PROXIES_EBAY_INTL = [
+  'https://api.codetabs.com/v1/proxy?quest=',
+  'https://thingproxy.freeboard.io/fetch/'
+];
+var CONCURRENCY = 6;   // reduced from 15 — prevents corsproxy 429 rate-limiting
+var TIMEOUT_MS  = 14000;
+
+/* ===================================================
+   TAL CLASSIFIER
+=================================================== */
+var TAL_RE  = /\btal\b(?!\/)|\bтал\b/i;  // exclude TAL/ trading card notation
+var NPZ_RE  = /\bnpz\b|\bнпз\b/i;
+var SCOPE_W = ['telescope','refractor','reflector','klevtsov','dobson','cassegrain',
+  'newtonian','apolar','ota','astronomy','astronomical',
+  'teleskop','telescopio','lunette','fernrohr','spiegel','kikare','kikkert','kaukoputki',
+  'телескоп','рефрактор','рефлектор','клевцов','астрономи'];
+var MODEL_W = ['125r','100rs','200k','apolar','klevtsov'];
+var EXCL_H  = ['eyepiece','oculaire','okular','ocular','barlow','diagonal','diagonale',
+  'focuser','dew shield','tauklappe','counterweight','gegengewicht','spare part',
+  'instruction manual','bedienungsanleitung',
+  'comic','manga'];
+var EXCL_S  = ['filter','filtre','finder scope','tube rings','dovetail','tripod',
+  'case only','bag only','book','magazine','adapter','cap only','motor drive'];
+// Hard exclusions — always blocked regardless of scope/model match
+var EXCL_HARD = ['bratz','barbie','lego','playmobil','totally awesome','pixie power',
+  'by christine','fairy tale','fairy tales','fairy-tale',
+  'tale of ','tales of ','tales from ','bedtime','storybook','story book',
+  ' dvd',' blu-ray','blu ray','video game','soundtrack',
+  'paperback','hardcover','fiction','novel'];
+
+function hasScopeW(tl) { for(var i=0;i<SCOPE_W.length;i++) if(tl.indexOf(SCOPE_W[i])!==-1) return true; return false; }
+function hasModelW(tl) { for(var i=0;i<MODEL_W.length;i++) if(tl.indexOf(MODEL_W[i])!==-1) return true; return false; }
+function isHardExcl(tl) { for(var i=0;i<EXCL_HARD.length;i++) if(tl.indexOf(EXCL_HARD[i])!==-1) return true; return false; }
+function isAccessory(tl, hasS, hasM) {
+  if (hasS && hasM) return false;
+  for(var i=0;i<EXCL_H.length;i++) if(tl.indexOf(EXCL_H[i])!==-1 && !hasS) return true;
+  if (!hasM) for(var i=0;i<EXCL_S.length;i++) if(tl.indexOf(EXCL_S[i])!==-1) return true;
+  return false;
+}
+function clsTAL(title) {
+  var t = title||'', tl = t.toLowerCase();
+  if (!TAL_RE.test(t) && !NPZ_RE.test(t)) return null;
+  if (isHardExcl(tl)) return null;  // block toys, books, media — always
+  var hasS = hasScopeW(tl), hasM = hasModelW(tl);
+  if (!hasS && !hasM) return null;  // need scope word OR model word
+  if (isAccessory(tl, hasS, hasM)) return null;
+  if (/200\s*k\b/.test(tl) || tl.indexOf('klevtsov')!==-1) return '200k';
+  if (tl.indexOf('125r')!==-1||tl.indexOf('125 r')!==-1||tl.indexOf('apolar')!==-1||
+      /\btal[- ]?125\b/.test(tl)||(tl.indexOf('125')!==-1&&tl.indexOf('mm')!==-1&&TAL_RE.test(t))) return '125';
+  if (tl.indexOf('100rs')!==-1||tl.indexOf('100 rs')!==-1||/\btal[- ]?100rs\b/.test(tl)) return '100rs';
+  return 'other';
+}
+
+/* ===================================================
+   STATE
+=================================================== */
+var scanMode    = 'tal';
+var scanning    = false;
+var stopped     = false;
+var filt        = 'all';
+var SD          = {};
+var siteKeys    = {};
+var siteItems   = {};
+var totalF      = 0;
+var doneF       = 0;
+var scanTime    = '';
+var activeXhrs  = [];  // registry of in-flight XHRs so stopScan can abort them
+
+/* ===================================================
+   PRESETS
+=================================================== */
+var DEFAULT_PRESET = {
+  name: 'TAL Telescopes',
+  terms: 'TAL 125R, TAL-125R, TAL 125, TAL Apolar, TAL 100RS, TAL-100RS, TAL 200K, TAL Klevtsov, TAL telescope, NPZ telescope',
+  sites: ALL_SITES.map(function(s){return s.id;}),
+  mode:  'tal'
+};
+
+function loadPresets() {
+  try { return JSON.parse(localStorage.getItem('mfs_presets')) || [DEFAULT_PRESET]; }
+  catch(e) { return [DEFAULT_PRESET]; }
+}
+function savePresets(ps) {
+  try { localStorage.setItem('mfs_presets', JSON.stringify(ps)); } catch(e) {}
+}
+function loadSites() {
+  try {
+    var s = JSON.parse(localStorage.getItem('mfs_sites'));
+    return s || ALL_SITES.map(function(x){return x.id;});
+  } catch(e) { return ALL_SITES.map(function(x){return x.id;}); }
+}
+function saveSites(ids) {
+  try { localStorage.setItem('mfs_sites', JSON.stringify(ids)); } catch(e) {}
+}
+function loadMode() {
+  try { return localStorage.getItem('mfs_mode') || 'tal'; } catch(e) { return 'tal'; }
+}
+function saveMode(m) {
+  try { localStorage.setItem('mfs_mode', m); } catch(e) {}
+}
+function loadTerms() {
+  try { return localStorage.getItem('mfs_terms') || DEFAULT_PRESET.terms; } catch(e) { return DEFAULT_PRESET.terms; }
+}
+function saveTerms(t) {
+  try { localStorage.setItem('mfs_terms', t); } catch(e) {}
+}
+
+/* ===================================================
+   UI — PRESETS BAR
+=================================================== */
+function renderPresets() {
+  var ps = loadPresets();
+  var bar = document.getElementById('presets-bar');
+  bar.innerHTML = '';
+  var curTerms = document.getElementById('terms-input').value.trim();
+  for (var i=0; i<ps.length; i++) {
+    var btn = document.createElement('button');
+    btn.className = 'preset-btn' + (ps[i].terms === curTerms ? ' active' : '');
+    btn.textContent = ps[i].name;
+    btn.setAttribute('data-i', i);
+    btn.onclick = (function(p){ return function(){ applyPreset(p); }; })(ps[i]);
+    bar.appendChild(btn);
+  }
+  var nb = document.createElement('button');
+  nb.className = 'preset-btn new-btn';
+  nb.textContent = '+ Save Current';
+  nb.onclick = promptSavePreset;
+  bar.appendChild(nb);
+}
+
+function applyPreset(p) {
+  document.getElementById('terms-input').value = p.terms;
+  setMode(p.mode || 'tal');
+  var enabled = p.sites || ALL_SITES.map(function(s){return s.id;});
+  var chips = document.querySelectorAll('.site-chip');
+  for (var i=0; i<chips.length; i++) {
+    var id = chips[i].getAttribute('data-id');
+    chips[i].classList.toggle('on', enabled.indexOf(id) !== -1);
+  }
+  saveTerms(p.terms);
+  saveSites(enabled);
+  renderPresets();
+}
+
+function promptSavePreset() {
+  document.getElementById('modal-title').textContent = 'Save Preset';
+  document.getElementById('modal-name').value = '';
+  document.getElementById('modal-bg').classList.add('open');
+  document.getElementById('modal-name').focus();
+}
+function modalClose() {
+  document.getElementById('modal-bg').classList.remove('open');
+}
+function modalOk() {
+  var name = document.getElementById('modal-name').value.trim();
+  if (!name) return;
+  var ps = loadPresets();
+  var enabled = getEnabledSites();
+  ps.push({
+    name:  name,
+    terms: document.getElementById('terms-input').value.trim(),
+    sites: enabled,
+    mode:  scanMode
+  });
+  savePresets(ps);
+  modalClose();
+  renderPresets();
+}
+
+/* ===================================================
+   UI — MODE
+=================================================== */
+function setMode(m) {
+  scanMode = m;
+  document.getElementById('btn-tal').classList.toggle('active', m === 'tal');
+  document.getElementById('btn-free').classList.toggle('active', m === 'free');
+  saveMode(m);
+}
+
+/* ===================================================
+   UI — SITE SELECTOR
+=================================================== */
+function toggleSites() {
+  var body = document.getElementById('sites-body');
+  var icon = document.getElementById('sites-icon');
+  var open = body.style.display !== 'none';
+  body.style.display = open ? 'none' : 'block';
+  icon.textContent = open ? '▼' : '▲';
+  icon.classList.toggle('open', !open);
+}
+
+function buildSiteSelector() {
+  var enabled = loadSites();
+  var container = document.getElementById('site-groups');
+  container.innerHTML = '';
+  var cats = ['eBay','UK','EU','Scan','RU','Astro'];
+  for (var c=0; c<cats.length; c++) {
+    var cat = cats[c];
+    var sites = ALL_SITES.filter(function(s){return s.cat===cat;});
+    var grp = document.createElement('div');
+    grp.className = 'site-group';
+    var hdr = document.createElement('div');
+    hdr.className = 'site-group-hdr';
+    var nm = document.createElement('span');
+    nm.className = 'site-group-name';
+    nm.textContent = CAT_META[cat].label;
+    var sa = document.createElement('button');
+    sa.className = 'sel-all-btn';
+    sa.textContent = 'All';
+    sa.setAttribute('data-cat', cat);
+    sa.onclick = (function(ct){ return function(){ selectCat(ct, true); }; })(cat);
+    hdr.appendChild(nm); hdr.appendChild(sa);
+    grp.appendChild(hdr);
+    var chips = document.createElement('div');
+    chips.className = 'site-chips';
+    for (var i=0; i<sites.length; i++) {
+      var s = sites[i];
+      var chip = document.createElement('div');
+      chip.className = 'site-chip' + (enabled.indexOf(s.id) !== -1 ? ' on' : '');
+      chip.setAttribute('data-id', s.id);
+      chip.textContent = getFlagEmoji(s.flag) + ' ' + s.name;
+      chip.onclick = (function(c2){ return function(){ toggleSite(c2); }; })(chip);
+      chips.appendChild(chip);
+    }
+    grp.appendChild(chips);
+    container.appendChild(grp);
+  }
+}
+
+function getFlagEmoji(code) {
+  if (code === 'EU') return '🌍';
+  if (code.length !== 2) return '';
+  return String.fromCodePoint(0x1F1E6 + code.charCodeAt(0) - 65) +
+         String.fromCodePoint(0x1F1E6 + code.charCodeAt(1) - 65);
+}
+
+function toggleSite(chip) {
+  chip.classList.toggle('on');
+  saveSites(getEnabledSites());
+}
+function selectCat(cat, on) {
+  var chips = document.querySelectorAll('.site-chip');
+  for (var i=0; i<chips.length; i++) {
+    var id = chips[i].getAttribute('data-id');
+    var site = SITE_MAP[id];
+    if (site && site.cat === cat) chips[i].classList.toggle('on', on);
+  }
+  saveSites(getEnabledSites());
+}
+function selectAllSites(on) {
+  var chips = document.querySelectorAll('.site-chip');
+  for (var i=0; i<chips.length; i++) chips[i].classList.toggle('on', on);
+  saveSites(getEnabledSites());
+}
+function getEnabledSites() {
+  var out = [];
+  var chips = document.querySelectorAll('.site-chip');
+  for (var i=0; i<chips.length; i++) {
+    if (chips[i].classList.contains('on')) out.push(chips[i].getAttribute('data-id'));
+  }
+  return out;
+}
+
+/* ===================================================
+   PARSERS
+=================================================== */
+function gTxt(el, sel) {
+  var f = el && el.querySelector(sel);
+  return f ? f.textContent.trim() : '';
+}
+function gAbs(href, base) {
+  if (!href) return '';
+  if (href.indexOf('http') === 0) return href;
+  try { return new URL(href, base).href; } catch(e) { return ''; }
+}
+
+function parseDoc(html, parser, sid) {
+  var out=[], doc, rows, i, r, ti, a, href;
+  try { doc = new DOMParser().parseFromString(html, 'text/html'); } catch(e) { return []; }
+  try {
+    if (parser === 'bear') {
+      var inStock = html.toLowerCase().indexOf('out of stock') === -1;
+      rows = doc.querySelectorAll('h1,h2,[class*="product-title"]');
+      for (i=0; i<rows.length; i++) {
+        ti = rows[i].textContent.trim();
+        if (ti.length < 4) continue;
+        out.push({title:ti+(inStock?' [IN STOCK]':' [OUT OF STOCK]'), price:'', url:'https://bearoptics.com/telescopes-tal/', site:sid});
+      }
+    } else if (parser === 'ebay') {
+      // Strategy 1: JSON-LD
+      var jscripts = doc.querySelectorAll('script[type="application/ld+json"]');
+      for (i=0; i<jscripts.length; i++) {
+        try {
+          var jd = JSON.parse(jscripts[i].textContent);
+          var jitems = jd['@type']==='ItemList' ? (jd.itemListElement||[]) : (jd['@type']==='Product' ? [jd] : []);
+          if (!jitems.length && Array.isArray(jd)) jitems = jd;
+          for (var ji=0; ji<jitems.length; ji++) {
+            var jitem = jitems[ji].item || jitems[ji];
+            ti = ((jitem.name||jitem.title||'')).trim();
+            if (!ti || ti.length < 8) continue;
+            out.push({title:ti, price:'', url:(jitem.url||jitem['@id']||''), site:sid});
+          }
+        } catch(je) {}
+      }
+      // Strategy 2: parent-walk from itm/ links
+      if (out.length === 0) {
+        var seenE = {};
+        var eLinks = doc.querySelectorAll('a[href*="/itm/"]');
+        for (i=0; i<eLinks.length; i++) {
+          var ehref = eLinks[i].getAttribute('href') || '';
+          var ematch = ehref.match(/\/itm\/[^\/]*\/(\d{10,})|\/itm\/(\d{10,})/);
+          if (!ematch) continue;
+          var eid = ematch[1] || ematch[2];
+          if (seenE[eid]) continue;
+          ti = '';
+          var node = eLinks[i].parentNode;
+          for (var dep=0; dep<6 && node && node.tagName !== 'BODY'; dep++) {
+            var tnode = node.querySelector('[role="heading"],h3,h2,.BOLD');
+            if (tnode) {
+              var tc = tnode.textContent.trim().replace(/\s+/g,' ');
+              if (tc.length >= 8 && tc.length <= 300 && tc !== 'Shop on eBay') { ti = tc; break; }
+            }
+            node = node.parentNode;
+          }
+          if (!ti) continue;
+          seenE[eid] = true;
+          out.push({title:ti, price:'', url:'https://www.ebay.co.uk/itm/'+eid, site:sid});
+        }
+      }
+      // Strategy 3: role=heading scan
+      if (out.length === 0) {
+        var hds = doc.querySelectorAll('[role="heading"]');
+        for (i=0; i<hds.length; i++) {
+          ti = hds[i].textContent.trim().replace(/\s+/g,' ');
+          if (!ti || ti.length < 8 || ti.length > 300 || ti === 'Shop on eBay') continue;
+          var hpar = hds[i].parentNode;
+          a = null;
+          for (var hd=0; hd<5 && hpar && hpar.tagName !== 'BODY'; hd++) {
+            a = hpar.querySelector('a[href*="/itm/"]');
+            if (a) break;
+            hpar = hpar.parentNode;
+          }
+          out.push({title:ti, price:'', url:a?a.href:'', site:sid});
+        }
+      }
+    } else if (parser === 'mktp') {
+      rows = doc.querySelectorAll('article,li[class*="listing"],[class*="Listing"],[data-collectionname]');
+      for (i=0; i<rows.length; i++) {
+        r = rows[i];
+        ti = gTxt(r,'h2,h3,[class*="title"],[class*="Title"]');
+        if (!ti) continue;
+        a = r.querySelector('a');
+        href = a ? (a.getAttribute('href') || '') : '';
+        out.push({title:ti, price:gTxt(r,'[class*="price"],[class*="Price"]'), url:gAbs(href,'https://www.marktplaats.nl'), site:sid});
+      }
+      if (out.length === 0) {
+        var mlinks = doc.querySelectorAll('a[href*="/a/"]');
+        for (i=0; i<mlinks.length; i++) {
+          ti = mlinks[i].textContent.trim();
+          if (ti.length < 5 || ti.length > 200) continue;
+          out.push({title:ti, price:'', url:gAbs(mlinks[i].getAttribute('href'),'https://www.marktplaats.nl'), site:sid});
+        }
+      }
+    } else if (parser === 'kleinanz') {
+      var klinks = doc.querySelectorAll('a[href*="/s-anzeige/"]');
+      for (i=0; i<klinks.length; i++) {
+        ti = klinks[i].textContent.trim();
+        if (ti.length < 5 || ti.length > 200) continue;
+        out.push({title:ti, price:'', url:gAbs(klinks[i].getAttribute('href'),'https://www.kleinanzeigen.de'), site:sid});
+      }
+      if (out.length === 0) {
+        rows = doc.querySelectorAll('article,[class*="aditem"],[class*="CardItem"]');
+        for (i=0; i<rows.length; i++) {
+          ti = gTxt(rows[i],'h2,h3,a,[class*="title"]');
+          if (!ti) continue;
+          a = rows[i].querySelector('a');
+          out.push({title:ti, price:gTxt(rows[i],'[class*="price"]'), url:gAbs(a?a.getAttribute('href'):'','https://www.kleinanzeigen.de'), site:sid});
+        }
+      }
+    } else if (parser === 'subito') {
+      // Subito.it listings have URLs containing /annunci/ with item IDs
+      // Skip the page-level heading "TAL 125r - Vendita in tutta Italia"
+      var slinks = doc.querySelectorAll('a[href*="/annunci/"]');
+      for (i=0; i<slinks.length; i++) {
+        var sh = slinks[i].getAttribute('href')||'';
+        // Only item pages have numeric IDs at end of URL
+        if (!sh.match(/\/\d+\.htm/)) continue;
+        ti = slinks[i].textContent.trim().replace(/\s+/g,' ');
+        if (ti.length < 5 || ti.length > 300) continue;
+        out.push({title:ti, price:'', url:gAbs(sh,'https://www.subito.it'), site:sid});
+      }
+      // Fallback: article/li elements
+      if (out.length === 0) {
+        rows = doc.querySelectorAll('article,[class*="item"],[class*="listing"]');
+        for (i=0; i<rows.length; i++) {
+          ti = gTxt(rows[i], 'h2,h3,[class*="title"]');
+          if (!ti || ti.length < 5) continue;
+          // Skip page-level headings containing "vendita" or "Italia"
+          if (ti.toLowerCase().indexOf('italia') !== -1) continue;
+          if (ti.toLowerCase().indexOf('vendita in') !== -1) continue;
+          a = rows[i].querySelector('a');
+          out.push({title:ti, price:gTxt(rows[i],'[class*="price"]'), url:a?a.href:'', site:sid});
+        }
+      }
+    } else if (parser === 'ricardo') {
+      var rlinks = doc.querySelectorAll('a[href*="/a/"],a[href*="/article"]');
+      for (i=0; i<rlinks.length; i++) {
+        ti = rlinks[i].textContent.trim();
+        if (ti.length < 5 || ti.length > 200) continue;
+        out.push({title:ti, price:'', url:gAbs(rlinks[i].getAttribute('href'),'https://www.ricardo.ch'), site:sid});
+      }
+    } else {
+      rows = doc.querySelectorAll('a,h2,h3');
+      for (i=0; i<rows.length; i++) {
+        ti = rows[i].textContent.trim();
+        if (ti.length < 5 || ti.length > 200) continue;
+        a = rows[i].tagName === 'A' ? rows[i] : rows[i].querySelector('a');
+        out.push({title:ti, price:'', url:a?a.href:'', site:sid});
+      }
+    }
+  } catch(e) {}
+  return out;
+}
+
+/* ===================================================
+   CLASSIFY
+=================================================== */
+function classify(title) {
+  if (scanMode === 'free') return 'free';
+  return clsTAL(title);
+}
+
+/* ===================================================
+   PROXY FETCH
+=================================================== */
+function fetchOne(url, cb, proxyList) {
+  var proxies = proxyList || PROXIES;
+  // Only eBay UK uses _ipg=3; on 413 fall back to _ipg=1 for it
+  function reducedUrl(u) {
+    if (u.indexOf('ebay.co.uk') !== -1 && u.indexOf('_ipg=3') !== -1) {
+      return u.replace('_ipg=3', '_ipg=1');
+    }
+    return null;
+  }
+  var activeUrl = url;
+  var pi = 0;
+  var triedReduced = false;
+  var retries429 = 0;          // retries on current proxy for 429
+  var MAX_429_RETRIES = 2;
+  var RETRY_DELAY_MS  = 2500;  // wait before retrying after 429
+
+  function tryNext() {
+    if (stopped) { cb(null); return; }
+    if (pi >= proxies.length) {
+      var smaller = reducedUrl(activeUrl);
+      if (smaller && !triedReduced) {
+        triedReduced = true;
+        activeUrl = smaller;
+        pi = 0; retries429 = 0;
+        tryNext();
+        return;
+      }
+      cb(null); return;
+    }
+    // Small random jitter (0–400ms) to de-sync parallel requests hitting same proxy
+    var jitter = Math.floor(Math.random() * 400);
+    setTimeout(function() {
+      if (stopped) { cb(null); return; }
+      var proxyUrl = proxies[pi];   // don't advance pi yet — may need to retry on 429
+      var purl = proxyUrl + encodeURIComponent(activeUrl);
+      var xhr = new XMLHttpRequest();
+      activeXhrs.push(xhr);
+      xhr.open('GET', purl, true);
+      xhr.timeout = TIMEOUT_MS;
+      xhr.onload = function() {
+        var xi = activeXhrs.indexOf(xhr);
+        if (xi !== -1) activeXhrs.splice(xi, 1);
+        if (stopped) { cb(null); return; }
+        if (xhr.status === 200 && xhr.responseText.length > 500) {
+          cb(xhr.responseText);
+        } else if (xhr.status === 429) {
+          // Rate-limited — retry same proxy after backoff, up to MAX_429_RETRIES
+          if (retries429 < MAX_429_RETRIES) {
+            retries429++;
+            setTimeout(function() { if (!stopped) tryNext(); }, RETRY_DELAY_MS * retries429);
+          } else {
+            retries429 = 0;
+            pi++;  // give up on this proxy, move to next
+            tryNext();
+          }
+        } else if (xhr.status === 413) {
+          pi++;  // corsproxy size limit — next proxy
+          tryNext();
+        } else {
+          pi++;
+          tryNext();
+        }
+      };
+      xhr.onerror = xhr.ontimeout = function() {
+        var xi = activeXhrs.indexOf(xhr);
+        if (xi !== -1) activeXhrs.splice(xi, 1);
+        if (stopped) { cb(null); return; }
+        pi++;
+        tryNext();
+      };
+      xhr.send();
+    }, jitter);
+  }
+  tryNext();
+}
+
+/* ===================================================
+   PARALLEL QUEUE
+=================================================== */
+function runParallel(jobs, concurrency, onJob, onDone) {
+  var idx=0, running=0, finished=0, total=jobs.length;
+  if (!total) { onDone(); return; }
+  function next() {
+    if (stopped) return;
+    while (running < concurrency && idx < total) {
+      if (stopped) return;
+      running++;
+      (function(job, slotDelay) {
+        setTimeout(function() {
+          if (stopped) { running--; finished++; if (finished === total && !stopped) onDone(); return; }
+          onJob(job, function() {
+            running--; finished++;
+            if (stopped) return;
+            if (finished === total) { onDone(); return; }
+            next();
+          });
+        }, slotDelay);
+      })(jobs[idx++], (running - 1) * 150); // 150ms between each slot launch
+    }
+  }
+  next();
+}
+
+/* ===================================================
+   ABSORB RESULTS
+=================================================== */
+function absorbItems(siteId, rawItems) {
+  var changed = false;
+  for (var ri=0; ri<rawItems.length; ri++) {
+    var item = rawItems[ri];
+    if (!item.title || item.title.length < 4) continue;
+    var c = classify(item.title);
+    if (!c) continue;
+    var key = item.url ? item.url.replace(/[?#].*$/,'') : item.title.toLowerCase().replace(/\s+/g,'').substring(0,40);
+    if (siteKeys[siteId][key]) continue;
+    siteKeys[siteId][key] = true;
+    var now = new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit',second:'2-digit'});
+    siteItems[siteId].push({title:item.title, price:item.price||'', url:item.url||'', site:siteId, cls:c, time:now});
+    changed = true;
+  }
+  if (changed) {
+    SD[siteId] = {items: siteItems[siteId]};
+    renderSiteResults(siteId);
+    updateSummary();
+  }
+}
+
+function absorbHTML(site, html) {
+  if (!html) return;
+  var raw = parseDoc(html, site.p, site.id);
+  absorbItems(site.id, raw);
+}
+
+/* ===================================================
+   SUMMARY
+=================================================== */
+function updateSummary() {
+  var all=[], n125=0, n100=0, n200=0, noth=0, nfre=0;
+  var keys = Object.keys(SD);
+  for (var k=0; k<keys.length; k++) {
+    var r = SD[keys[k]];
+    if (r && r.items) for (var j=0; j<r.items.length; j++) all.push(r.items[j]);
+  }
+  for (var n=0; n<all.length; n++) {
+    if (all[n].cls==='125') n125++;
+    else if (all[n].cls==='100rs') n100++;
+    else if (all[n].cls==='200k') n200++;
+    else if (all[n].cls==='free') nfre++;
+    else noth++;
+  }
+  function sites(arr) {
+    var s={};
+    for(var x=0;x<arr.length;x++) s[arr[x].site]=1;
+    return Object.keys(s).length;
+  }
+  function lbl(arr) { return arr.length ? 'across '+sites(arr)+' site'+(sites(arr)!==1?'s':'') : 'none found yet'; }
+
+  var sw = document.getElementById('sumwrap');
+  sw.innerHTML = '';
+  sw.style.display = 'flex';
+
+  if (scanMode === 'tal') {
+    sw.appendChild(mkCard('s125','🟢','125',n125,'TAL 125R',lbl(all.filter(function(x){return x.cls==='125';}))));
+    sw.appendChild(mkCard('s100','🟡','100rs',n100,'TAL 100RS',lbl(all.filter(function(x){return x.cls==='100rs';}))));
+    sw.appendChild(mkCard('s200','🔴','200k',n200,'TAL 200K',lbl(all.filter(function(x){return x.cls==='200k';}))));
+    sw.appendChild(mkCard('soth','🔵','other',noth,'OTHER TAL',lbl(all.filter(function(x){return x.cls==='other';}))));
+    sw.appendChild(mkCard('sall','🔭','all',all.length,'ALL RESULTS',lbl(all)));
+  } else {
+    sw.appendChild(mkCard('sfre','🔍','free',nfre,'MATCHES',lbl(all)));
+    sw.appendChild(mkCard('sall','🔭','all',all.length,'ALL RESULTS',lbl(all)));
+  }
+}
+
+function mkCard(cls, icon, filtVal, count, label, sub) {
+  var d = document.createElement('div');
+  d.className = 'scard '+cls;
+  d.onclick = function(){ setFilt(filtVal); };
+  d.innerHTML = '<div class="sicon">'+icon+'</div><div class="stxt">'+
+    '<div class="scnt">'+count+'</div>'+
+    '<div class="slbl">'+label+'</div>'+
+    '<div class="ssite">'+sub+'</div></div>';
+  return d;
+}
+
+/* ===================================================
+   FILTER BAR
+=================================================== */
+function buildFilterBar() {
+  var fb = document.getElementById('fbar');
+  fb.style.display = 'flex';
+  fb.innerHTML = '';
+  var filters = scanMode === 'tal'
+    ? [{v:'all',l:'All TAL'},{v:'125',l:'125R'},{v:'100rs',l:'100RS'},{v:'200k',l:'200K'},{v:'other',l:'Other'},{v:'eBay',l:'eBay'},{v:'UK',l:'UK'},{v:'EU',l:'EU'},{v:'Scan',l:'Scandi'},{v:'RU',l:'Russia'},{v:'Astro',l:'Astronomy'}]
+    : [{v:'all',l:'All'},{v:'eBay',l:'eBay'},{v:'UK',l:'UK'},{v:'EU',l:'EU'},{v:'Scan',l:'Scandi'},{v:'RU',l:'Russia'},{v:'Astro',l:'Astronomy'}];
+  for (var i=0; i<filters.length; i++) {
+    var b = document.createElement('button');
+    b.className = 'fb' + (filters[i].v === filt ? ' on' : '');
+    b.textContent = filters[i].l;
+    b.setAttribute('data-f', filters[i].v);
+    b.onclick = (function(v){ return function(){ setFilt(v); }; })(filters[i].v);
+    fb.appendChild(b);
+  }
+}
+
+function setFilt(f) {
+  filt = f;
+  var bs = document.querySelectorAll('.fb');
+  for (var i=0; i<bs.length; i++) bs[i].classList.toggle('on', bs[i].getAttribute('data-f') === f);
+  renderAllResults();
+}
+
+/* ===================================================
+   RESULTS RENDERING
+=================================================== */
+function esc(s) {
+  return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+function transUrl(url) {
+  return 'https://translate.google.com/translate?sl=auto&tl=en&u=' + encodeURIComponent(url);
+}
+
+function itemVisible(item) {
+  if (filt === 'all') return true;
+  if (filt === '125' || filt === '100rs' || filt === '200k' || filt === 'other' || filt === 'free') return item.cls === filt;
+  var site = SITE_MAP[item.site];
+  return site && site.cat === filt;
+}
+
+function siteVisible(siteId) {
+  var site = SITE_MAP[siteId];
+  if (!site) return true;
+  if (filt === 'all' || filt === '125' || filt === '100rs' || filt === '200k' || filt === 'other' || filt === 'free') return true;
+  return site.cat === filt;
+}
+
+function mkResultCard(item) {
+  var site = SITE_MAP[item.site] || {name:item.site, lang:'en', flag:'', cat:''};
+  var clsClass = item.cls === '125' ? 'c125' : item.cls === '100rs' ? 'c100' : item.cls === '200k' ? 'c200' : item.cls === 'free' ? 'cfre' : 'coth';
+  var clsBadge = item.cls === '125' ? '<span class="rcard-cls cls-125">125R</span>' :
+                 item.cls === '100rs' ? '<span class="rcard-cls cls-100">100RS</span>' :
+                 item.cls === '200k' ? '<span class="rcard-cls cls-200">200K</span>' :
+                 item.cls === 'free' ? '' :
+                 '<span class="rcard-cls cls-oth">TAL</span>';
+  var flagHtml = getFlagEmoji(site.flag || '');
+  var needsTrans = site.lang && site.lang !== 'en';
+  var safeUrl = (item.url||'').replace(/'/g,'%27');
+  var transBtnHtml = needsTrans && item.url ?
+    '<button class="rcard-trans" onclick="event.stopPropagation();window.open(\''+transUrl(item.url).replace(/'/g,'%27')+'\',\'_blank\')">Translate</button>' : '';
+
+  var html = '<div class="rcard '+clsClass+'" onclick="'+(item.url ? 'window.open(\''+safeUrl+'\',\'_blank\')' : '')+'">' +
+    '<div class="rcard-body">' +
+    '<div class="rcard-title">'+esc(item.title)+'</div>' +
+    '<div class="rcard-meta">' +
+    (item.price ? '<span class="rcard-price">'+esc(item.price)+'</span>' : '') +
+    '<span class="rcard-site">'+flagHtml+' '+esc(site.name)+'</span>' +
+    clsBadge +
+    '<span class="rcard-time">'+esc(item.time)+'</span>' +
+    '</div></div>' +
+    '<div class="rcard-btns">' +
+    (item.url ? '<button class="rcard-view" onclick="event.stopPropagation();window.open(\''+safeUrl+'\',\'_blank\')">View Listing</button>' : '') +
+    transBtnHtml +
+    '</div></div>';
+  return html;
+}
+
+function renderSiteResults(siteId) {
+  var el = document.getElementById('rs-'+siteId);
+  if (!el) return;
+  var site = SITE_MAP[siteId];
+  if (!siteVisible(siteId)) { el.style.display='none'; return; }
+  el.style.display = '';
+  var state = SD[siteId];
+  var badge = el.querySelector('.site-badge');
+
+  if (!state || state === 'waiting') {
+    badge.className = 'site-badge sb-wait'; badge.textContent = 'Waiting';
+    el.querySelector('.rs-body').innerHTML = '';
+    return;
+  }
+  if (state === 'scanning') {
+    badge.className = 'site-badge sb-scan'; badge.textContent = 'Scanning...';
+    el.querySelector('.rs-body').innerHTML = '';
+    return;
+  }
+  if (state.error) {
+    badge.className = 'site-badge sb-err'; badge.textContent = 'Error';
+    el.querySelector('.rs-body').innerHTML = '<div class="no-results">Could not fetch — '+(site&&site.tpl ? '<a href="'+site.tpl.replace('%%Q%%','TAL')+'" target="_blank" style="color:#818cf8">open manually</a>' : 'blocked')+'</div>';
+    return;
+  }
+  var items = (state.items||[]).filter(itemVisible);
+  if (items.length === 0) {
+    var total = (state.items||[]).length;
+    badge.className = 'site-badge sb-none';
+    badge.textContent = total > 0 ? total+' (filtered)' : 'None';
+    el.querySelector('.rs-body').innerHTML = '';
+    return;
+  }
+  // Set badge
+  if (scanMode === 'tal') {
+    var n125=(items.filter(function(x){return x.cls==='125';})).length;
+    var n100=(items.filter(function(x){return x.cls==='100rs';})).length;
+    var n200=(items.filter(function(x){return x.cls==='200k';})).length;
+    var badges='';
+    if(n125) badges+='<span class="site-badge sb-125">'+n125+' 125R</span> ';
+    if(n100) badges+='<span class="site-badge sb-100">'+n100+' 100RS</span> ';
+    if(n200) badges+='<span class="site-badge sb-200">'+n200+' 200K</span> ';
+    if(!badges) badges='<span class="site-badge sb-oth">'+items.length+' TAL</span>';
+    badge.outerHTML = badges; // replace single badge with multiple
+  } else {
+    badge.className = 'site-badge sb-fre'; badge.textContent = items.length+' found';
+  }
+  var html = '';
+  for (var i=0; i<items.length; i++) html += mkResultCard(items[i]);
+  el.querySelector('.rs-body').innerHTML = html;
+}
+
+function renderAllResults() {
+  for (var i=0; i<ALL_SITES.length; i++) renderSiteResults(ALL_SITES[i].id);
+}
+
+function buildResultShell(enabledIds) {
+  var con = document.getElementById('results');
+  con.innerHTML = '';
+  var cats = ['eBay','UK','EU','Scan','RU','Astro'];
+  for (var c=0; c<cats.length; c++) {
+    var cat = cats[c];
+    var sitesInCat = ALL_SITES.filter(function(s){ return s.cat===cat && enabledIds.indexOf(s.id)!==-1; });
+    if (!sitesInCat.length) continue;
+    var sec = document.createElement('div');
+    sec.className = 'site-section';
+    sec.id = 'sec-'+cat;
+    var secHdr = document.createElement('div');
+    secHdr.style.cssText = 'font-size:11px;font-weight:700;color:'+CAT_META[cat].color+';letter-spacing:2px;text-transform:uppercase;padding:8px 0 4px;border-bottom:1px solid #2e3347;margin-bottom:8px;';
+    secHdr.textContent = CAT_META[cat].label;
+    sec.appendChild(secHdr);
+    for (var i=0; i<sitesInCat.length; i++) {
+      var s = sitesInCat[i];
+      var sDiv = document.createElement('div');
+      sDiv.id = 'rs-'+s.id;
+      sDiv.style.marginBottom = '12px';
+      sDiv.innerHTML = '<div class="site-hdr">'+
+        '<span class="site-flag">'+getFlagEmoji(s.flag)+'</span>'+
+        '<span class="site-name">'+s.name+'</span>'+
+        '<span class="site-badge sb-wait">Waiting</span>'+
+        '</div><div class="rs-body"></div>';
+      sec.appendChild(sDiv);
+    }
+    con.appendChild(sec);
+  }
+}
+
+/* ===================================================
+   STATUS LINE
+=================================================== */
+function updateStatus(siteName) {
+  var all = [];
+  var keys = Object.keys(SD);
+  for (var k=0; k<keys.length; k++) {
+    var r = SD[keys[k]];
+    if (r && r.items) for (var j=0; j<r.items.length; j++) all.push(r.items[j]);
+  }
+  var tally = '';
+  if (scanMode === 'tal') {
+    var n125 = all.filter(function(x){return x.cls==='125';}).length;
+    var n100 = all.filter(function(x){return x.cls==='100rs';}).length;
+    var n200 = all.filter(function(x){return x.cls==='200k';}).length;
+    if (n125) tally += ' <span style="color:#4ade80">'+n125+' 125R</span>';
+    if (n100) tally += ' <span style="color:#fbbf24">'+n100+' 100RS</span>';
+    if (n200) tally += ' <span style="color:#f87171">'+n200+' 200K</span>';
+    if (!tally) tally = ' <span style="color:#374151">none yet</span>';
+  } else {
+    tally = ' <span style="color:#22d3ee">'+all.length+' found</span>';
+  }
+  document.getElementById('sline').innerHTML =
+    '<span class="spin"></span> '+esc(siteName)+' | found:'+tally;
+}
+
+/* ===================================================
+   SCAN
+=================================================== */
+function stopScan() {
+  stopped = true;
+  // Abort every in-flight XHR immediately — no more network requests
+  for (var i = 0; i < activeXhrs.length; i++) {
+    try { activeXhrs[i].abort(); } catch(e) {}
+  }
+  activeXhrs = [];
+  document.getElementById('stop-btn').style.display = 'none';
+  document.getElementById('scan-btn').disabled = false;
+  document.getElementById('scan-btn').textContent = 'SCAN AGAIN';
+  document.getElementById('sline').textContent = 'Scan stopped';
+  scanning = false;
+}
+
+function startScan() {
+  var termsRaw = document.getElementById('terms-input').value.trim();
+  if (!termsRaw) {
+    document.getElementById('sline').textContent = 'Please enter at least one search term';
+    return;
+  }
+  var terms = termsRaw.split(/[\n,]+/).map(function(t){return t.trim();}).filter(function(t){return t.length>0;});
+  if (!terms.length) {
+    document.getElementById('sline').textContent = 'Please enter at least one search term';
+    return;
+  }
+  var enabledIds = getEnabledSites();
+  if (!enabledIds.length) {
+    document.getElementById('sline').textContent = 'Please enable at least one site';
+    return;
+  }
+  saveTerms(termsRaw);
+
+  scanning = true; stopped = false; filt = 'all';
+  SD = {}; siteKeys = {}; siteItems = {}; doneF = 0; activeXhrs = [];
+  scanTime = new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
+
+  for (var i=0; i<ALL_SITES.length; i++) {
+    siteKeys[ALL_SITES[i].id] = {};
+    siteItems[ALL_SITES[i].id] = [];
+  }
+
+  var btn = document.getElementById('scan-btn');
+  btn.disabled = true;
+  document.getElementById('stop-btn').style.display = 'block';
+  document.getElementById('prog').style.width = '0';
+  document.getElementById('prog').style.background = 'linear-gradient(90deg,#7c3aed,#34d399)';
+
+  buildFilterBar();
+  buildResultShell(enabledIds);
+
+  // Mark all enabled sites as scanning
+  for (var s=0; s<enabledIds.length; s++) {
+    SD[enabledIds[s]] = 'scanning';
+    renderSiteResults(enabledIds[s]);
+  }
+
+  // Build jobs
+  var jobs = [];
+  var enabledSites = ALL_SITES.filter(function(s){ return enabledIds.indexOf(s.id) !== -1; });
+  for (var si=0; si<enabledSites.length; si++) {
+    var site = enabledSites[si];
+    if (site.fixed) {
+      jobs.push({site:site, url:site.tpl});
+    } else {
+      for (var ti=0; ti<terms.length; ti++) {
+        // decodeURIComponent first — guards against stale localStorage with pre-encoded terms
+        var cleanTerm;
+        try { cleanTerm = decodeURIComponent(terms[ti]); } catch(e) { cleanTerm = terms[ti]; }
+        jobs.push({site:site, url:site.tpl.replace('%%Q%%', encodeURIComponent(cleanTerm))});
+      }
+    }
+  }
+
+  totalF = jobs.length;
+  btn.textContent = 'Scanning '+totalF+' queries...';
+  document.getElementById('cline').textContent = '0 / '+totalF+' fetches';
+  document.getElementById('ftxt').textContent = 'MF SEARCH v4.9 — '+enabledIds.length+' sites — '+terms.length+' term'+(terms.length!==1?'s':'')+' — '+scanTime;
+
+  runParallel(jobs, CONCURRENCY, function(job, done) {
+    // Non-UK eBay and sites flagged skipCorsproxy: skip corsproxy (hard 413) — use codetabs+thingproxy only
+    var proxyList = (job.site.p === 'ebay' && job.site.id !== 'ebay-uk') || job.site.skipCorsproxy
+      ? PROXIES_EBAY_INTL : PROXIES;
+    fetchOne(job.url, function(html) {
+      if (stopped) { done(); return; }
+      doneF++;
+      document.getElementById('prog').style.width = Math.round(doneF/totalF*100)+'%';
+      document.getElementById('cline').textContent = doneF+' / '+totalF+' fetches complete';
+      updateStatus(job.site.name);
+      absorbHTML(job.site, html);
+      if (SD[job.site.id] === 'scanning') {
+        SD[job.site.id] = {items: siteItems[job.site.id]};
+        renderSiteResults(job.site.id);
+      }
+      done();
+    }, proxyList);
+  }, function() {
+    var now = new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
+    document.getElementById('sline').textContent = 'Scan complete — '+now;
+    document.getElementById('cline').textContent = totalF+' fetches — '+enabledIds.length+' sites scanned';
+    document.getElementById('prog').style.width = '100%';
+    document.getElementById('stop-btn').style.display = 'none';
+    btn.disabled = false; btn.textContent = 'SCAN AGAIN';
+    scanning = false;
+    updateSummary();
+  });
+}
+
+/* ===================================================
+   DEBUG
+=================================================== */
+function toggleDbg() {
+  var body = document.getElementById('dbg-body');
+  var icon = document.getElementById('dbg-icon');
+  var open = body.style.display !== 'none';
+  body.style.display = open ? 'none' : 'block';
+  icon.textContent = open ? '▼' : '▲';
+}
+
+function runDebug() {
+  var btn = document.getElementById('dbg-run');
+  btn.disabled = true; btn.textContent = 'Testing...';
+  var out = document.getElementById('dbg-out');
+  out.innerHTML = '';
+  var TESTS = [
+    {label:'eBay UK (TAL 125R)',     url:'https://www.ebay.co.uk/sch/i.html?_nkw=TAL+125R+telescope&_sop=10&_ipg=3'},
+    {label:'eBay DE (TAL Teleskop)', url:'https://www.ebay.de/sch/i.html?_nkw=TAL+Teleskop&_sop=10&_ipg=1'},
+    {label:'eBay IT (TAL)',          url:'https://www.ebay.it/sch/i.html?_nkw=TAL+telescopio&_sop=10&_ipg=1'},
+    {label:'eBay FR (TAL)',          url:'https://www.ebay.fr/sch/i.html?_nkw=TAL+125&_sop=10&_ipg=1'},
+    {label:'Marktplaats (TAL)',      url:'https://www.marktplaats.nl/q/TAL+telescoop/'},
+    {label:'Kleinanzeigen (TAL)',    url:'https://www.kleinanzeigen.de/s-TAL-teleskop/k0'},
+    {label:'Ricardo.ch (TAL)',       url:'https://www.ricardo.ch/de/s/TAL%20teleskop'},
+    {label:'Astrotreff (TAL)',       url:'https://www.astrotreff.de/marketplace/?search=TAL'}
+  ];
+  function w(msg, cls) {
+    var line = document.createElement('span');
+    if (cls) line.className = cls;
+    line.textContent = msg + '\n';
+    out.appendChild(line);
+    out.scrollTop = out.scrollHeight;
+  }
+  function analyse(t, label) {
+    var clean = t.replace(/<style[^>]*>[\s\S]*?<\/style>/gi,'')
+                 .replace(/<script[^>]*>[\s\S]*?<\/script>/gi,'')
+                 .replace(/<[^>]+>/g,' ').replace(/\s+/g,' ').trim();
+    w('  Size: '+t.length+' chars | Text: '+clean.length+' chars', 'di');
+    w('  Preview: '+clean.substring(0,180), 'di');
+    if (label.indexOf('eBay') !== -1) {
+      var itmCount = t.split('/itm/').length - 1;
+      var hasJsonLd = t.indexOf('application/ld+json') !== -1;
+      var captcha = t.indexOf('captcha') !== -1 || t.indexOf('unusual traffic') !== -1;
+      var signinOnly = t.indexOf('sign in') !== -1 && itmCount === 0;
+      w('  itm/ links: '+itmCount+' | JSON-LD: '+(hasJsonLd?'YES':'NO'), itmCount>0?'ok':'er');
+      w('  Captcha: '+(captcha?'YES':'No')+' | Signin-only: '+(signinOnly?'YES':'No'), (captcha||signinOnly)?'er':'ok');
+      if (itmCount > 0) {
+        var parsed = parseDoc(t, 'ebay', 'dbg');
+        var old = scanMode;
+        scanMode = 'tal';
+        var matched = parsed.filter(function(x){ return clsTAL(x.title) !== null; });
+        scanMode = old;
+        w('  Parser: '+parsed.length+' extracted, '+matched.length+' match TAL classifier', parsed.length>0?'ok':'di');
+        if (matched.length > 0) {
+          matched.slice(0,3).forEach(function(x){ w('    >> ['+clsTAL(x.title)+'] '+x.title.substring(0,70), 'ok'); });
+        } else if (parsed.length > 0) {
+          parsed.slice(0,2).forEach(function(x){ w('    sample: '+x.title.substring(0,70), 'di'); });
+        }
+        w('  [OK] Listings accessible', 'ok');
+      } else if (captcha) {
+        w('  [X] Bot wall detected', 'er');
+      } else {
+        w('  [X] No item links — blocked or error', 'er');
+      }
+    } else {
+      var links = (t.match(/href="[^"]{20,}"/g)||[]).length;
+      var blocked = /captcha|access denied|enable cookies|you have been blocked/i.test(t);
+      w('  Links: '+links+' | Blocked: '+(blocked?'YES':'No'), blocked?'er':'ok');
+      if (t.length < 3000) w('  [X] Response too small — likely blocked', 'er');
+      else if (blocked) w('  [X] Block page detected', 'er');
+      else w('  [OK] Response looks valid', 'ok');
+    }
+  }
+  function testProxy(proxyUrl, proxyName, targetUrl, label, cb) {
+    w('  -> '+proxyName+'...', 'in');
+    var bust = targetUrl;  // no cache-buster — it inflates URL length and triggers 413
+    var start = Date.now();
+    var xhr = new XMLHttpRequest();
+    xhr.open('GET', proxyUrl+encodeURIComponent(bust), true);
+    xhr.timeout = 15000;
+    xhr.onload = function() {
+      var ms = Date.now()-start;
+      var t = xhr.responseText||'';
+      w('    HTTP '+xhr.status+' | '+t.length+' chars | '+ms+'ms'+(ms<200?' (cached)':'')+(xhr.status===413?' ← PAYLOAD TOO LARGE':''), xhr.status===200?'ok':'er');
+      if (xhr.status===413) { w('    [!] 413 — will retry with _ipg=1 in main scanner', 'er'); cb(); return; }
+      if (xhr.status===200 && t.length>500) { analyse(t, label); cb(); }
+      else { w('    [X] Bad response', 'er'); cb(); }
+    };
+    xhr.onerror = xhr.ontimeout = function(){ w('    [X] Timeout/error', 'er'); cb(); };
+    xhr.send();
+  }
+  function runTests(ti) {
+    if (ti >= TESTS.length) {
+      w('', ''); w('=== Done ===', 'in');
+      btn.disabled=false; btn.textContent='Test All Proxies Now';
+      return;
+    }
+    var test = TESTS[ti];
+    w('', ''); w('--- '+test.label+' ---', 'in');
+    w('URL: '+test.url, 'di');
+    var pi = 0;
+    function nextP() {
+      if (pi >= PROXIES.length) { runTests(ti+1); return; }
+      var pName = ['corsproxy.io','codetabs','thingproxy'][pi]||'proxy'+pi;
+      testProxy(PROXIES[pi++], pName, test.url, test.label, nextP);
+    }
+    nextP();
+  }
+  w('MF Search — Proxy Diagnostic', 'in');
+  w('Testing '+TESTS.length+' sites x '+PROXIES.length+' proxies (corsproxy / codetabs / thingproxy)', 'di');
+  runTests(0);
+}
+
+/* ===================================================
+   INIT
+=================================================== */
+function init() {
+  // Restore saved state
+  var savedTerms = loadTerms();
+  document.getElementById('terms-input').value = savedTerms;
+  var savedMode = loadMode();
+  setMode(savedMode);
+  buildSiteSelector();
+  renderPresets();
+
+  // Update scan button label
+  var en = getEnabledSites();
+  document.getElementById('scan-btn').textContent = 'SCAN NOW (' + en.length + ' sites)';
+
+  // Keep scan button label updated when sites change
+  var chips = document.querySelectorAll('.site-chip');
+  for (var i=0; i<chips.length; i++) {
+    chips[i].addEventListener('click', function() {
+      setTimeout(function(){
+        var e = getEnabledSites();
+        document.getElementById('scan-btn').textContent = 'SCAN NOW ('+e.length+' sites)';
+      }, 50);
+    });
+  }
+}
+
+window.addEventListener('load', init);
+</script>
+</body>
+</html>
